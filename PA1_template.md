@@ -192,4 +192,4 @@ g <- ggplot(weekSum, aes(interval, mean))
 g+geom_line(aes(col=day))+facet_wrap(~day, nrow=2)
 ```
 
-![](PA1_template_files/figure-html/panel plot-1.png)<!-- -->
+![](PA1_template_files/figure-html/panel-plot-1.png)<!-- -->
