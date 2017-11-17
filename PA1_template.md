@@ -10,8 +10,6 @@ output:
 
 
 ```r
-# 1. Load the data (i.e.read.csv())  
- 
 library(ggplot2)
 library(dplyr)
 ```
@@ -34,11 +32,15 @@ library(dplyr)
 ```
 
 ```r
+# 1. Load the data (i.e.read.csv())  
 fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
 download.file(fileUrl, destfile="./dataActivity.zip", method="curl")
 unzip("./dataActivity.zip")
 actData0 <- read.csv("activity.csv", na.strings = "NA")
+```
 
+
+```r
 # 2. Process/transform the data (if necessary) into a format suitable for your analysis
 actData0 <- tbl_df(actData0)
 ```
@@ -52,13 +54,17 @@ dateGrp0 <- group_by(actData0, date)
 dateGrp0$steps <- as.numeric(as.character(dateGrp0$steps))
 stepTotal0 <- summarize(dateGrp0, 
                        total=sum(steps))
+```
 
+
+```r
 # 2. Make a histogram of the total number of steps taken each day
 with(stepTotal0, hist(total, ylim=c(0,35)))
 abline(h=35)
 ```
 
-![](PA1_template_files/figure-html/histogram-1.png)<!-- -->
+![](PA1_template_files/figure-html/histogram0-1.png)<!-- -->
+
 
 ```r
 # 3. Calculate and report the mean and median of the total number of steps taken per day 
@@ -84,6 +90,7 @@ with(avgSteps,plot(x=interval, y=mean, type="l"))
 
 ![](PA1_template_files/figure-html/time-series-1.png)<!-- -->
 
+
 ```r
 # 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 maxDat <- filter(avgSteps, mean==max(mean))
@@ -102,16 +109,27 @@ maxSteps <- maxDat$mean[1]
 # 1. Calculate and report the total number of missing values in the dataset
 naDat <- dateGrp0[is.na(dateGrp0$steps),1]
 naTotal <- nrow(naDat)
+```
 
+
+```r
 # 2. Devise a strategy for filling in all of the missing values in the dataset. 
 stepMean <- avgSteps$mean
 stepMean <- rep(stepMean, 8)
+## makes a vector of the average steps for each interval, then repeats 8 times for the 8 days with missing values. 
+```
 
+
+```r
 # 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
 dateGrp1 <- group_by(actData0, date)
 dateGrp1[is.na(dateGrp1$steps),1] <- mutate(
     dateGrp1[is.na(dateGrp1$steps),1], steps=stepMean)
+## the NA values of the dataset are subsetted, then mutate replaces them with stepMean, under a new object, dateGrp1.
+```
 
+
+```r
 # 4. Make a histogram of the total number of steps taken each day.
 stepTotal1 <- summarize(dateGrp1, 
                        total=sum(steps))
@@ -119,7 +137,8 @@ with(stepTotal1, hist(total, ylim=c(0,35)))
 abline(h=35)
 ```
 
-![](PA1_template_files/figure-html/imput NA-1.png)<!-- -->
+![](PA1_template_files/figure-html/histogram1-1.png)<!-- -->
+
 
 ```r
 # 4.1. Calculate and report the mean and median of the total number of steps taken per day. 
@@ -164,10 +183,13 @@ actData1 <- ungroup(dateGrp1)
 intGrp1 <- mutate(actData1, day=weekVar)
 intGrp1 <- group_by(intGrp1, interval, day)
 weekSum <- summarize(intGrp1, mean=mean(steps))
+```
 
+
+```r
 # 2. Make a panel plot containing a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
 g <- ggplot(weekSum, aes(interval, mean))
 g+geom_line(aes(col=day))+facet_wrap(~day, nrow=2)
 ```
 
-![](PA1_template_files/figure-html/week plot panel-1.png)<!-- -->
+![](PA1_template_files/figure-html/panel plot-1.png)<!-- -->
